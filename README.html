@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Optimizing Clinical Laboratory Operations with ML — Thesis Project</title>
+  <meta name="description" content="Thesis showcase: Optimizing clinical laboratory operations using machine learning. Experiments, results, ethics & governance, and downloads." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #0b0e14;
+      --panel: #121826;
+      --text: #e6e8ee;
+      --muted: #9aa4b2;
+      --accent: #4f46e5;
+      --accent-2: #06b6d4;
+      --border: #1f2937;
+      --success: #16a34a;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+    }
+    @media (prefers-color-scheme: light) {
+      :root{
+        --bg: #f7f7fb;
+        --panel: #ffffff;
+        --text: #0b0e14;
+        --muted: #5b6573;
+        --border: #e5e7eb;
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body{
+      margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: var(--bg); color: var(--text);
+    }
+    a{ color: inherit; text-decoration: none; }
+    .container{ width:min(1100px, 92%); margin-inline:auto; }
+    header{
+      position: sticky; top:0; z-index:1000; backdrop-filter: blur(8px);
+      background: color-mix(in hsl, var(--bg), transparent 60%);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; }
+    .nav a{ padding:8px 10px; border-radius:12px; }
+    .nav a:hover{ background: color-mix(in hsl, var(--panel), transparent 70%); }
+    .brand{ display:flex; align-items:center; gap:10px; font-weight:700; }
+    .brand .dot{ width:10px; height:10px; border-radius:999px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:inline-block; }
+
+    .hero{ padding:72px 0 36px; }
+    .hero .title{ font-size: clamp(28px, 3.2vw, 46px); line-height:1.15; margin: 12px 0 8px; }
+    .hero .subtitle{ color: var(--muted); font-size: clamp(14px, 1.6vw, 18px); }
+    .cta{ display:flex; gap:12px; flex-wrap:wrap; margin-top:22px; }
+    .btn{ display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:14px; border:1px solid var(--border); background: var(--panel); color:var(--text); font-weight:600; }
+    .btn:hover{ transform: translateY(-1px); }
+    .btn.primary{ background: linear-gradient(135deg,var(--accent),var(--accent-2)); border-color: transparent; color:white; }
+
+    section{ padding:36px 0; }
+    .section-title{ font-size: clamp(20px, 2.2vw, 28px); margin: 0 0 18px; }
+    .lead{ color: var(--muted); }
+
+    .grid{ display:grid; gap:16px; }
+    .grid.cols-2{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .grid.cols-3{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+    @media (max-width: 900px){ .grid.cols-2, .grid.cols-3 { grid-template-columns: 1fr; } }
+
+    .card{ background: var(--panel); border:1px solid var(--border); border-radius:20px; padding:18px; }
+    .card h3{ margin:0 0 8px; font-size:18px; }
+    .meta{ color: var(--muted); font-size:14px; }
+    .pill{ display:inline-flex; align-items:center; gap:8px; font-weight:600; font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--border); background: color-mix(in hsl, var(--panel), transparent 20%); }
+
+    .table{ width:100%; border-collapse: collapse; }
+    .table th,.table td{ text-align:left; padding:10px 12px; border-bottom:1px solid var(--border); }
+    .table th{ color: var(--muted); font-weight:600; }
+
+    footer{ border-top:1px solid var(--border); padding:24px 0 60px; color: var(--muted); }
+
+    .small{ font-size: 12px; color: var(--muted); }
+    .kpis{ display:flex; gap:10px; flex-wrap:wrap; }
+    .kpi{ padding:10px 12px; border:1px solid var(--border); background: color-mix(in hsl, var(--panel), transparent 20%); border-radius:14px; }
+
+    .topbar{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .spacer{ height:1px; background: var(--border); margin:16px 0; }
+
+    .toc{ display:flex; gap:8px; flex-wrap:wrap; }
+    .toc a{ padding:6px 10px; border-radius:999px; border:1px solid var(--border); color:var(--muted); }
+
+    .floating{ position: fixed; right: 18px; bottom: 18px; z-index: 50; display:flex; flex-direction:column; gap:12px; }
+    .fab{ border: 1px solid var(--border); background: var(--panel); border-radius: 999px; padding: 12px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav" role="navigation" aria-label="Primary">
+      <div class="brand"><span class="dot" aria-hidden="true"></span> Thesis Project</div>
+      <nav class="toc" aria-label="Sections">
+        <a href="#overview">Overview</a>
+        <a href="#data">Data</a>
+        <a href="#methods">Methods</a>
+        <a href="#experiments">Experiments</a>
+        <a href="#ethics">Ethics</a>
+        <a href="#team">Team</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero" id="top">
+      <div class="pill" aria-label="Project header tag">Tallaght University Hospital • 2025</div>
+      <h1 class="title">Optimizing Clinical Laboratory Operations with Machine Learning</h1>
+      <p class="subtitle">A thesis exploring how ML can improve blood testing workflows (e.g., predicting haemolysis risk and operational delays) with transparent, ethical practice.</p>
+      <div class="cta" role="group" aria-label="Primary actions">
+        <a class="btn primary" href="#" id="download-pdf" aria-label="Download thesis PDF">⬇️ Download Thesis PDF</a>
+        <a class="btn" href="#" id="github-link" aria-label="View source code">🧪 View Code</a>
+        <a class="btn" href="#contact" aria-label="Jump to contact">✉️ Contact</a>
+      </div>
+    </section>
+
+    <section id="overview">
+      <h2 class="section-title">Overview</h2>
+      <p class="lead">This project studies the relationship between blood specimen potassium (K) levels, haemolysis, and logistics (e.g., travel time from GP to lab), aiming to inform lab operations and reduce avoidable redraws. Models include OLS, Random Forest, XGBoost, and MLP, with SHAP/LIME/Grad-CAM used to support interpretability.</p>
+      <div class="spacer"></div>
+      <div class="grid cols-3">
+        <div class="card"><h3>Objectives</h3>
+          <ul>
+            <li>Model haemolysis and related risks to support lab decisions.</li>
+            <li>Quantify impact of transit and processing times.</li>
+            <li>Adopt human-centred, transparent ML practices.</li>
+          </ul>
+        </div>
+        <div class="card"><h3>Outcomes</h3>
+          <ul>
+            <li>Benchmark of classic vs. ensemble models.</li>
+            <li>Feature insights via SHAP & permutation importance.</li>
+            <li>Ethics review using ALTAI & Microsoft AI Fairness Checklist.</li>
+          </ul>
+        </div>
+        <div class="card"><h3>Artifacts</h3>
+          <ul>
+            <li>Reproducible notebook & cleaned dataset (CSV).</li>
+            <li>Experiment summary tables and plots.</li>
+            <li>Public PDF of the dissertation.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="data">
+      <h2 class="section-title">Data</h2>
+      <p class="lead">Key fields from the laboratory information system and study metadata.</p>
+      <div class="card">
+        <table class="table" aria-label="Dataset schema">
+          <thead>
+            <tr>
+              <th>Column</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>SEQN</td><td>Sample identifier</td></tr>
+            <tr><td>Date_Sample_taken</td><td>Date sample was taken</td></tr>
+            <tr><td>OCS_Time</td><td>Order communication system time</td></tr>
+            <tr><td>Time_Recorded</td><td>Time recorded at lab intake</td></tr>
+            <tr><td>Validation_Date</td><td>Date results validated</td></tr>
+            <tr><td>Time_of_Technical_Validation</td><td>Technical validation timestamp</td></tr>
+            <tr><td>Time_of_Clinical_Validation</td><td>Clinical validation timestamp</td></tr>
+            <tr><td>GP</td><td>General Practice clinic identifier</td></tr>
+            <tr><td>Potassium_mmol/L</td><td>Serum potassium level</td></tr>
+            <tr><td>Haemolysis</td><td>Haemolysis index / score</td></tr>
+            <tr><td>Icterus, Lipaemia</td><td>Sample quality flags</td></tr>
+            <tr><td>OCS_Datetime</td><td>Combined order datetime</td></tr>
+            <tr><td>Time_Recorded_Datetime</td><td>Lab intake datetime</td></tr>
+            <tr><td>Technical_Validation_Datetime</td><td>Technical validation datetime</td></tr>
+            <tr><td>Clinical_Validation_Datetime</td><td>Clinical validation datetime</td></tr>
+            <tr><td>MinutesFromGPtoLab</td><td>Transit time (GP → Lab)</td></tr>
+            <tr><td>MinutesFromLabToResults</td><td>Processing time (Lab → Result)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">Note: all patient data handled per institutional approvals; values shown here are de-identified and for illustration.</p>
+    </section>
+
+    <section id="methods">
+      <h2 class="section-title">Methods</h2>
+      <div class="grid cols-3">
+        <div class="card">
+          <h3>Pipeline</h3>
+          <ol>
+            <li>Data cleaning & time harmonization</li>
+            <li>Exploration & descriptive stats</li>
+            <li>Feature engineering (e.g., distances, time windows)</li>
+            <li>Train/validation/test split & baseline</li>
+            <li>Model training (OLS, RF, XGBoost, MLP)</li>
+            <li>Evaluation (R²/MAE for regression; F1/CM for classification)</li>
+            <li>Explainability (SHAP, permutation importance)</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3>Tools</h3>
+          <ul>
+            <li>Python, Jupyter</li>
+            <li>scikit-learn, XGBoost</li>
+            <li>SHAP, LIME</li>
+            <li>Matplotlib/Plotly for plots</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Key Features</h3>
+          <ul>
+            <li>Potassium_mmol/L</li>
+            <li>MinutesFromGPtoLab</li>
+            <li>MinutesFromLabToResults</li>
+            <li>DistanceFromTUH_KM (derived)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="experiments">
+      <h2 class="section-title">Experiments & Results</h2>
+      <p class="lead">Selected results (test-set unless noted). See the PDF for full details.</p>
+
+      <div class="grid cols-3" aria-label="Experiment cards">
+        <article class="card" aria-labelledby="exp1">
+          <h3 id="exp1">Exp 1 — RF Regressor (Haemolysis)</h3>
+          <p class="meta">Features: MinutesFromLabToResults, MinutesFromGPtoLab, DistanceFromTUH_KM, Potassium_mmol/L</p>
+          <div class="kpis">
+            <div class="kpi">R²: <strong>-0.071</strong></div>
+            <div class="kpi">MSE: <strong>34.309</strong></div>
+            <div class="kpi">MAE: <strong>4.452</strong></div>
+          </div>
+          <p class="small">SHAP: MinutesFromLabToResults had highest impact.</p>
+        </article>
+
+        <article class="card" aria-labelledby="exp3">
+          <h3 id="exp3">Exp 3 — OLS & RF (w/ categorical)</h3>
+          <p class="meta">Added features: GP, delivery method/window</p>
+          <div class="kpis">
+            <div class="kpi">OLS R²: <strong>0.299</strong></div>
+            <div class="kpi">RF R²: <strong>0.516</strong></div>
+            <div class="kpi">RF (reduced) R²: <strong>0.654</strong></div>
+          </div>
+          <p class="small">Top predictors: Potassium, MinutesFromLabToResults.</p>
+        </article>
+
+        <article class="card" aria-labelledby="exp4">
+          <h3 id="exp4">Exp 4 — RF (ScoreOfHaemolysis 0–5)</h3>
+          <p class="meta">Ordinal target</p>
+          <div class="kpis">
+            <div class="kpi">R²: <strong>-0.086</strong></div>
+            <div class="kpi">MSE: <strong>0.485</strong></div>
+            <div class="kpi">MAE: <strong>0.393</strong></div>
+          </div>
+          <p class="small">Impact: MinutesFromLabToResults highest.</p>
+        </article>
+
+        <article class="card" aria-labelledby="exp5">
+          <h3 id="exp5">Exp 5 — OLS vs RF (continuous)</h3>
+          <p class="meta">Potassium dominant feature in both models</p>
+          <div class="kpis">
+            <div class="kpi">OLS R²: <strong>0.034</strong></div>
+            <div class="kpi">RF train R²: <strong>0.849</strong></div>
+          </div>
+          <p class="small">RF showed overfitting; SHAP confirmed Potassium dominance.</p>
+        </article>
+
+        <article class="card" aria-labelledby="exp6">
+          <h3 id="exp6">Exp 6 — XGBoost (3-class, weighted)</h3>
+          <p class="meta">Classes: Mild, Moderate, Severe</p>
+          <div class="kpis">
+            <div class="kpi">Accuracy: <strong>0.342</strong></div>
+            <div class="kpi">Weighted F1: <strong>0.351</strong></div>
+          </div>
+          <p class="small">Most misclassified between Moderate and Severe.</p>
+        </article>
+
+        <article class="card" aria-labelledby="exp7">
+          <h3 id="exp7">Exp 7 — XGBoost + SMOTE (3-class)</h3>
+          <p class="meta">Balanced using SMOTE</p>
+          <div class="kpis">
+            <div class="kpi">Accuracy: <strong>0.509</strong></div>
+            <div class="kpi">Weighted F1: <strong>0.426</strong></div>
+          </div>
+          <p class="small">Importance: Potassium, then delivery time & distance.</p>
+        </article>
+      </div>
+
+      <div class="spacer"></div>
+      <div class="card">
+        <div class="topbar">
+          <strong>Downloads</strong>
+          <span class="pill">📄 Summary CSV</span>
+          <span class="pill">📊 Figures (ZIP)</span>
+        </div>
+        <p class="small">Add links to generated artifacts here to help examiners verify results.</p>
+      </div>
+    </section>
+
+    <section id="ethics">
+      <h2 class="section-title">Ethics & Governance</h2>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>Guiding Frameworks</h3>
+          <ul>
+            <li>ALTAI — Assessment List for Trustworthy AI</li>
+            <li>Microsoft AI Fairness Checklist</li>
+          </ul>
+          <p class="small">Focus: transparency, bias, accountability, and privacy-by-design.</p>
+        </div>
+        <div class="card">
+          <h3>Data Protection</h3>
+          <ul>
+            <li>De-identification and minimization</li>
+            <li>Purpose limitation and access control</li>
+            <li>Secure research storage and audit trail</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="team">
+      <h2 class="section-title">Team & Acknowledgements</h2>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>Researcher</h3>
+          <p><strong>Your Name</strong><br/>MSc Human-Centred AI, Technological University Dublin</p>
+        </div>
+        <div class="card">
+          <h3>Supervision</h3>
+          <p><strong>Dr. Fernando Perez Tellez</strong> (Supervisor)<br/><strong>Laboratory Staff</strong>, Tallaght University Hospital (Co-supervisors)</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <h2 class="section-title">Contact</h2>
+      <div class="card">
+        <p>Questions or collaboration ideas? Reach out.</p>
+        <p>
+          <a class="btn" href="mailto:you@example.com">✉️ Email</a>
+          <a class="btn" href="#" id="linkedin-link">🔗 LinkedIn</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <div class="floating" aria-hidden>
+    <button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">⬆️</button>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div>© <span id="year"></span> Your Name. All rights reserved.</div>
+      <div class="small">Built with HTML/CSS/JS. Host on GitHub Pages or Netlify. Replace placeholders with your actual links and content.</div>
+    </div>
+  </footer>
+
+  <script>
+    // Insert current year
+    document.getElementById('year').textContent = new Date().getFullYear();
+    // TODO: Replace these with real URLs
+    document.getElementById('download-pdf').href = '#'; // e.g., /files/thesis.pdf
+    document.getElementById('github-link').href = '#'; // e.g., https://github.com/yourname/thesis
+    document.getElementById('linkedin-link').href = '#';
+  </script>
+</body>
+</html>
