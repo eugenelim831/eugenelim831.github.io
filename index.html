@@ -3,368 +3,551 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Optimizing Clinical Laboratory Operations with ML — Thesis Project</title>
-  <meta name="description" content="Thesis showcase: Optimizing clinical laboratory operations using machine learning. Experiments, results, ethics & governance, and downloads." />
+  <title>Optimizing Clinical Lab Operations — Thesis</title>
+  <meta name="description" content="Healthcare ML product concept: reduce redraws and delays via haemolysis risk prediction. Transparent model with SHAP & permutation importance." />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg: #0b0e14;
-      --panel: #121826;
-      --text: #e6e8ee;
-      --muted: #9aa4b2;
-      --accent: #4f46e5;
-      --accent-2: #06b6d4;
-      --border: #1f2937;
-      --success: #16a34a;
-      --warn: #f59e0b;
-      --danger: #ef4444;
+      --bg:#05080f;           /* deep night */
+      --panel:#0c1220;        /* card */
+      --panel-2:#0f1a2e;      /* elevated */
+      --text:#e7f6ff;         /* near-white */
+      --muted:#9fb3c8;        /* muted */
+      --accent:#e11d48;       /* crimson */
+      --accent-2:#dc2626;     /* red */
+      --ok:#22c55e;
+      --warn:#f59e0b;
+      --danger:#ef4444;
+      --border:#1d2a44;
+      --glow:0 0 40px color-mix(in hsl, var(--accent), transparent 70%);
     }
-    @media (prefers-color-scheme: light) {
-      :root{
-        --bg: #f7f7fb;
-        --panel: #ffffff;
-        --text: #0b0e14;
-        --muted: #5b6573;
-        --border: #e5e7eb;
-      }
-    }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
     body{
-      margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      background: var(--bg); color: var(--text);
+      margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 10% -10%, #3b0c13 0%, transparent 60%),
+        radial-gradient(900px 700px at 110% -10%, #1e0b10 0%, transparent 60%),
+        var(--bg)
     }
-    a{ color: inherit; text-decoration: none; }
-    .container{ width:min(1100px, 92%); margin-inline:auto; }
-    header{
-      position: sticky; top:0; z-index:1000; backdrop-filter: blur(8px);
-      background: color-mix(in hsl, var(--bg), transparent 60%);
-      border-bottom: 1px solid var(--border);
+    a{color:inherit; text-decoration:none}
+    .container{width:min(1100px,92%); margin-inline:auto}
+
+    /* NAV */
+    header{position:sticky; top:0; z-index:50; backdrop-filter: blur(8px); border-bottom:1px solid var(--border); background: color-mix(in hsl, var(--bg), transparent 60%)}
+    .nav{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0}
+    .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.3px}
+    .brand svg{width:18px; height:18px}
+    .nav a{padding:8px 12px; border-radius:12px; color:var(--muted)}
+    .nav a:hover{background: color-mix(in hsl, var(--panel), transparent 70%); color:var(--text)}
+
+    /* HERO */
+    .hero{position:relative; padding:90px 0 30px; overflow:hidden}
+    canvas#fx{position:absolute; inset:0; width:100%; height:100%; z-index:0;}
+    .hero-inner{position:relative; z-index:1}
+    .title{font-size:clamp(36px,6vw,66px); line-height:1.05; margin: 6px 0; font-weight:800; letter-spacing:-.5px;}
+    .title .gradient{background:linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip:text; background-clip:text; color:transparent; filter: drop-shadow(0 6px 24px rgba(6,182,212,.15))}
+    .sub{color:var(--muted); font-weight:600; font-size:clamp(14px,1.6vw,18px)}
+
+    .cta{display:flex; gap:12px; flex-wrap:wrap; margin-top:22px}
+    .btn{position:relative; display:inline-flex; align-items:center; gap:10px; padding:12px 16px; border-radius:14px; border:1px solid var(--border); background: linear-gradient(180deg, color-mix(in hsl, var(--panel), transparent 10%), color-mix(in hsl, var(--panel-2), transparent 10%)); font-weight:700}
+    .btn:hover{transform: translateY(-2px); box-shadow: var(--glow)}
+    .btn.primary{background:linear-gradient(135deg, var(--accent-2), var(--accent)); border:0; color:white}
+
+    /* STRIP cards */
+    .strip{display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:14px; margin-top:26px}
+    .card{position:relative; overflow:hidden; background: color-mix(in hsl, var(--panel), transparent 0%); border:1px solid var(--border); border-radius:20px; padding:18px}
+    .card h3{margin:0; font-size:16px}
+    .card .mini{color:var(--muted); font-size:13px}
+    .card:hover{transform: translateY(-2px); box-shadow: 0 10px 40px rgba(6,182,212,.08)}
+
+    /* METRICS */
+    .metrics{display:flex; gap:10px; flex-wrap:wrap; margin-top:18px}
+    .kpi{padding:10px 12px; border:1px solid var(--border); border-radius:14px; background:color-mix(in hsl, var(--panel), transparent 10%)}
+    .kpi .num{font-weight:800; font-size:18px}
+    .kpi .lbl{font-size:12px; color:var(--muted)}
+
+    /* TABS */
+    .tabs{margin-top:34px}
+    .tabbar{display:flex; gap:8px; flex-wrap:wrap}
+    .tabbar button{all:unset; cursor:pointer; padding:8px 12px; border-radius:999px; border:1px solid var(--border); color:var(--muted)}
+    .tabbar button[aria-selected="true"]{background:linear-gradient(135deg, color-mix(in hsl, var(--accent), transparent 70%), color-mix(in hsl, var(--accent-2), transparent 70%)); color:var(--text)}
+    .panel{display:none; margin-top:16px}
+    .panel.active{display:block}
+
+    /* RESULTS GRID (no slider) */
+    .results-grid{display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:14px; margin-top:10px}
+    .exp{background: color-mix(in hsl, var(--panel-2), transparent 0%); border:1px solid var(--border); border-radius:16px; padding:14px}
+    .exp h4{margin:0 0 6px 0}
+    .exp .tiny{color:var(--muted); font-size:12px}
+    .exp .chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+    .chip{font-size:12px; padding:6px 8px; border-radius:999px; border:1px solid var(--border); color:var(--muted)}
+
+    /* TABLE & GALLERY */
+    .table{width:100%; border-collapse:collapse}
+    .table th,.table td{ text-align:left; padding:10px 12px; border-bottom:1px solid var(--border) }
+    .table th{ color:var(--muted); font-weight:600 }
+
+    .gallery{display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:12px}
+    .gallery img{width:100%; height:auto; border-radius:12px; border:1px solid var(--border)}
+    #lightbox{position:fixed; inset:0; background:rgba(0,0,0,.75); display:none; align-items:center; justify-content:center; z-index:70; padding:20px}
+    #lightbox.show{display:flex}
+    #lightbox figure{max-width:min(1100px,92%); margin:0}
+    #lightbox img{width:100%; height:auto; display:block; border-radius:12px; border:1px solid var(--border)}
+    #lightbox figcaption{text-align:center; margin-top:8px; color: var(--muted)}
+
+    /* DETAILS */
+    details{margin-top:10px}
+    details summary{cursor:pointer; font-weight:600; color:var(--muted)}
+    details[open] summary{color:var(--text)}
+
+    /* FOOTER */
+    footer{border-top:1px solid var(--border); padding:26px 0 60px; color:var(--muted)}
+
+    /* RESPONSIVE */
+    @media (max-width: 900px){
+      .strip{grid-template-columns:1fr}
+      .results-grid{grid-template-columns:1fr}
+      .gallery{grid-template-columns:1fr}
     }
-    .nav{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; }
-    .nav a{ padding:8px 10px; border-radius:12px; }
-    .nav a:hover{ background: color-mix(in hsl, var(--panel), transparent 70%); }
-    .brand{ display:flex; align-items:center; gap:10px; font-weight:700; }
-    .brand .dot{ width:10px; height:10px; border-radius:999px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:inline-block; }
 
-    .hero{ padding:72px 0 36px; }
-    .hero .title{ font-size: clamp(28px, 3.2vw, 46px); line-height:1.15; margin: 12px 0 8px; }
-    .hero .subtitle{ color: var(--muted); font-size: clamp(14px, 1.6vw, 18px); }
-    .cta{ display:flex; gap:12px; flex-wrap:wrap; margin-top:22px; }
-    .btn{ display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:14px; border:1px solid var(--border); background: var(--panel); color:var(--text); font-weight:600; }
-    .btn:hover{ transform: translateY(-1px); }
-    .btn.primary{ background: linear-gradient(135deg,var(--accent),var(--accent-2)); border-color: transparent; color:white; }
+    /* Blood analysis theme overlay */
+    body::before{
+      content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background:
+        repeating-linear-gradient(0deg, transparent 0 23px, rgba(255,255,255,.02) 24px),
+        radial-gradient(800px 400px at 20% -10%, rgba(225,29,72,.10), transparent 60%),
+        radial-gradient(600px 300px at 90% -10%, rgba(220,38,38,.08), transparent 60%);
+    }
 
-    section{ padding:36px 0; }
-    .section-title{ font-size: clamp(20px, 2.2vw, 28px); margin: 0 0 18px; }
-    .lead{ color: var(--muted); }
+    /* ---------- FIXES FOR DATA TAB TABLE ---------- */
 
-    .grid{ display:grid; gap:16px; }
-    .grid.cols-2{ grid-template-columns: repeat(2, minmax(0,1fr)); }
-    .grid.cols-3{ grid-template-columns: repeat(3, minmax(0,1fr)); }
-    @media (max-width: 900px){ .grid.cols-2, .grid.cols-3 { grid-template-columns: 1fr; } }
+    /* 1) Let the schema card span full width in the Data tab */
+    #panel-1 .strip{
+      grid-template-columns: 1fr;
+    }
 
-    .card{ background: var(--panel); border:1px solid var(--border); border-radius:20px; padding:18px; }
-    .card h3{ margin:0 0 8px; font-size:18px; }
-    .meta{ color: var(--muted); font-size:14px; }
-    .pill{ display:inline-flex; align-items:center; gap:8px; font-weight:600; font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--border); background: color-mix(in hsl, var(--panel), transparent 20%); }
+    /* 2) Allow wide tables to scroll horizontally instead of being clipped */
+    .table-wrap{
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
 
-    .table{ width:100%; border-collapse: collapse; }
-    .table th,.table td{ text-align:left; padding:10px 12px; border-bottom:1px solid var(--border); }
-    .table th{ color: var(--muted); font-weight:600; }
-
-    footer{ border-top:1px solid var(--border); padding:24px 0 60px; color: var(--muted); }
-
-    .small{ font-size: 12px; color: var(--muted); }
-    .kpis{ display:flex; gap:10px; flex-wrap:wrap; }
-    .kpi{ padding:10px 12px; border:1px solid var(--border); background: color-mix(in hsl, var(--panel), transparent 20%); border-radius:14px; }
-
-    .topbar{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-    .spacer{ height:1px; background: var(--border); margin:16px 0; }
-
-    .toc{ display:flex; gap:8px; flex-wrap:wrap; }
-    .toc a{ padding:6px 10px; border-radius:999px; border:1px solid var(--border); color:var(--muted); }
-
-    .floating{ position: fixed; right: 18px; bottom: 18px; z-index: 50; display:flex; flex-direction:column; gap:12px; }
-    .fab{ border: 1px solid var(--border); background: var(--panel); border-radius: 999px; padding: 12px; cursor: pointer; }
+    /* 3) Give the schema table a sensible minimum width so columns don't collapse */
+    .table--wide{
+      min-width: 720px; /* adjust if you want more/less */
+    }
   </style>
 </head>
 <body>
   <header>
-    <div class="container nav" role="navigation" aria-label="Primary">
-      <div class="brand"><span class="dot" aria-hidden="true"></span> Thesis Project</div>
-      <nav class="toc" aria-label="Sections">
-        <a href="#overview">Overview</a>
-        <a href="#data">Data</a>
-        <a href="#methods">Methods</a>
-        <a href="#experiments">Experiments</a>
-        <a href="#ethics">Ethics</a>
-        <a href="#team">Team</a>
+    <div class="container nav">
+      <div class="brand" aria-label="Site brand">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="var(--accent)"/><stop offset="100%" stop-color="var(--accent-2)"/></linearGradient></defs><path d="M12 2 C12 2 6 9 6 12.5 A6 6 0 0 0 18 12.5 C18 9 12 2 12 2 Z" fill="url(#g)"/><rect x="10.5" y="8.5" width="3" height="7" rx="1" fill="#fff" opacity=".9"/><rect x="8.5" y="10.5" width="7" height="3" rx="1" fill="#fff" opacity=".9"/></svg>
+        <span>Haemosense • Healthcare AI</span>
+      </div>
+      <nav aria-label="Main">
+        <a href="#work">Work</a>
+        <a href="#experiments">Results</a>
         <a href="#contact">Contact</a>
       </nav>
     </div>
   </header>
 
-  <main class="container">
-    <section class="hero" id="top">
-      <div class="pill" aria-label="Project header tag">Tallaght University Hospital • 2025</div>
-      <h1 class="title">Optimizing Clinical Laboratory Operations with Machine Learning</h1>
-      <p class="subtitle">A thesis exploring how ML can improve blood testing workflows (e.g., predicting haemolysis risk and operational delays) with transparent, ethical practice.</p>
-      <div class="cta" role="group" aria-label="Primary actions">
-        <a class="btn primary" href="#" id="download-pdf" aria-label="Download thesis PDF">⬇️ Download Thesis PDF</a>
-        <a class="btn" href="#" id="github-link" aria-label="View source code">🧪 View Code</a>
-        <a class="btn" href="#contact" aria-label="Jump to contact">✉️ Contact</a>
-      </div>
-    </section>
+  <main>
+    <section class="hero">
+      <canvas id="fx" aria-hidden="true"></canvas>
+      <div class="container hero-inner">
+        <div class="pill" style="display:inline-flex;gap:8px;align-items:center;border:1px solid var(--border);padding:6px 10px;border-radius:999px;color:var(--muted)">Healthcare • Dublin University Hospital • 2025</div>
+        <h1 class="title">Reduce Redraws. <span class="gradient">Speed Up Blood Results.</span></h1>
+        <div class="sub" aria-live="polite">
+          <span id="cycler">Haemolysis risk</span> • Transit time • Fairness • Explainable AI
+        </div>
+        <div class="cta" role="group" aria-label="Primary actions">
+          <a class="btn primary" href="#download-pdf" id="">Documentation</a>
+          <a class="btn" href="#experiments">See Results</a>
+          <a class="btn" href="#contact">✉️ Contact</a>
+        </div>
 
-    <section id="overview">
-      <h2 class="section-title">Overview</h2>
-      <p class="lead">This project studies the relationship between blood specimen potassium (K) levels, haemolysis, and logistics (e.g., travel time from GP to lab), aiming to inform lab operations and reduce avoidable redraws. Models include OLS, Random Forest, XGBoost, and MLP, with SHAP/LIME/Grad-CAM used to support interpretability.</p>
-      <div class="spacer"></div>
-      <div class="grid cols-3">
-        <div class="card"><h3>Objectives</h3>
-          <ul>
-            <li>Model haemolysis and related risks to support lab decisions.</li>
-            <li>Quantify impact of transit and processing times.</li>
-            <li>Adopt human-centred, transparent ML practices.</li>
-          </ul>
+        <div class="metrics" id="counters" aria-label="Project metrics">
+          <div class="kpi"><div class="num" data-target="10">0</div><div class="lbl">Prototypes</div></div>
+          <div class="kpi"><div class="num" data-target="7">0</div><div class="lbl">Model families</div></div>
+          <div class="kpi"><div class="num" data-target="4">0</div><div class="lbl">Explainability tools</div></div>
         </div>
-        <div class="card"><h3>Outcomes</h3>
-          <ul>
-            <li>Benchmark of classic vs. ensemble models.</li>
-            <li>Feature insights via SHAP & permutation importance.</li>
-            <li>Ethics review using ALTAI & Microsoft AI Fairness Checklist.</li>
-          </ul>
-        </div>
-        <div class="card"><h3>Artifacts</h3>
-          <ul>
-            <li>Reproducible notebook & cleaned dataset (CSV).</li>
-            <li>Experiment summary tables and plots.</li>
-            <li>Public PDF of the dissertation.</li>
-          </ul>
+
+        <div class="strip" id="work">
+          <div class="card reveal"><h3>Haemolysis</h3><div class="mini">RBC damage vs Transit Time</div></div>
+          <div class="card reveal"><h3>Potassium (K⁺)</h3><div class="mini">Serum K Trends</div></div>
+          <div class="card reveal"><h3>Sample Quality</h3><div class="mini">Colour • Consistency • Checks</div></div>
         </div>
       </div>
     </section>
 
-    <section id="data">
-      <h2 class="section-title">Data</h2>
-      <p class="lead">Key fields from the laboratory information system and study metadata.</p>
-      <div class="card">
-        <table class="table" aria-label="Dataset schema">
-          <thead>
-            <tr>
-              <th>Column</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>SEQN</td><td>Sample identifier</td></tr>
-            <tr><td>Date_Sample_taken</td><td>Date sample was taken</td></tr>
-            <tr><td>OCS_Time</td><td>Order communication system time</td></tr>
-            <tr><td>Time_Recorded</td><td>Time recorded at lab intake</td></tr>
-            <tr><td>Validation_Date</td><td>Date results validated</td></tr>
-            <tr><td>Time_of_Technical_Validation</td><td>Technical validation timestamp</td></tr>
-            <tr><td>Time_of_Clinical_Validation</td><td>Clinical validation timestamp</td></tr>
-            <tr><td>GP</td><td>General Practice clinic identifier</td></tr>
-            <tr><td>Potassium_mmol/L</td><td>Serum potassium level</td></tr>
-            <tr><td>Haemolysis</td><td>Haemolysis index / score</td></tr>
-            <tr><td>Icterus, Lipaemia</td><td>Sample quality flags</td></tr>
-            <tr><td>OCS_Datetime</td><td>Combined order datetime</td></tr>
-            <tr><td>Time_Recorded_Datetime</td><td>Lab intake datetime</td></tr>
-            <tr><td>Technical_Validation_Datetime</td><td>Technical validation datetime</td></tr>
-            <tr><td>Clinical_Validation_Datetime</td><td>Clinical validation datetime</td></tr>
-            <tr><td>MinutesFromGPtoLab</td><td>Transit time (GP → Lab)</td></tr>
-            <tr><td>MinutesFromLabToResults</td><td>Processing time (Lab → Result)</td></tr>
-          </tbody>
-        </table>
+    <section class="container tabs" id="experiments" aria-label="Interactive tabs">
+      <div class="tabbar" role="tablist">
+        <button role="tab" aria-selected="true" aria-controls="panel-1" id="tab-1">Data</button>
+        <button role="tab" aria-selected="false" aria-controls="panel-2" id="tab-2">Methods</button>
+        <button role="tab" aria-selected="false" aria-controls="panel-3" id="tab-3">Results</button>
+        <button role="tab" aria-selected="false" aria-controls="panel-4" id="tab-4">Ethics</button>
+        <button role="tab" aria-selected="false" aria-controls="panel-5" id="tab-5">Significance</button>
       </div>
-      <p class="small">Note: all patient data handled per institutional approvals; values shown here are de-identified and for illustration.</p>
-    </section>
 
-    <section id="methods">
-      <h2 class="section-title">Methods</h2>
-      <div class="grid cols-3">
-        <div class="card">
-          <h3>Pipeline</h3>
-          <ol>
-            <li>Data cleaning & time harmonization</li>
-            <li>Exploration & descriptive stats</li>
-            <li>Feature engineering (e.g., distances, time windows)</li>
-            <li>Train/validation/test split & baseline</li>
-            <li>Model training (OLS, RF, XGBoost, MLP)</li>
-            <li>Evaluation (R²/MAE for regression; F1/CM for classification)</li>
-            <li>Explainability (SHAP, permutation importance)</li>
-          </ol>
-        </div>
-        <div class="card">
-          <h3>Tools</h3>
-          <ul>
-            <li>Python, Jupyter</li>
-            <li>scikit-learn, XGBoost</li>
-            <li>SHAP, LIME</li>
-            <li>Matplotlib/Plotly for plots</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>Key Features</h3>
-          <ul>
-            <li>Potassium_mmol/L</li>
-            <li>MinutesFromGPtoLab</li>
-            <li>MinutesFromLabToResults</li>
-            <li>DistanceFromTUH_KM (derived)</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section id="experiments">
-      <h2 class="section-title">Experiments & Results</h2>
-      <p class="lead">Selected results (test-set unless noted). See the PDF for full details.</p>
-
-      <div class="grid cols-3" aria-label="Experiment cards">
-        <article class="card" aria-labelledby="exp1">
-          <h3 id="exp1">Exp 1 — RF Regressor (Haemolysis)</h3>
-          <p class="meta">Features: MinutesFromLabToResults, MinutesFromGPtoLab, DistanceFromTUH_KM, Potassium_mmol/L</p>
-          <div class="kpis">
-            <div class="kpi">R²: <strong>-0.071</strong></div>
-            <div class="kpi">MSE: <strong>34.309</strong></div>
-            <div class="kpi">MAE: <strong>4.452</strong></div>
+      <!-- DATA -->
+      <div class="panel active reveal" id="panel-1" role="tabpanel" aria-labelledby="tab-1">
+        <div class="strip">
+          <div class="card">
+            <div class="table-wrap" role="region" aria-label="Scrollable dataset schema">
+              <table class="table table--wide" aria-label="Dataset schema">
+                <thead>
+                  <tr>
+                    <th>Variable</th>
+                    <th>Type</th>
+                    <th>Unit / Levels</th>
+                    <th>Role</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Haemolysis</td><td>continuous</td><td>unitless index</td><td>Target (regression)</td></tr>
+                  <tr><td>HaemolysisScore</td><td>ordinal</td><td>0–5</td><td>Target (classification)</td></tr>
+                  <tr><td>Potassium_mmol/L</td><td>numeric</td><td>mmol/L</td><td>Mechanistic predictor</td></tr>
+                  <tr><td>MinutesFromGPtoLab</td><td>numeric</td><td>minutes</td><td>Process predictor</td></tr>
+                  <tr><td>MinutesFromLabToResults</td><td>numeric</td><td>minutes</td><td>Process predictor</td></tr>
+                  <tr><td>General Practitioner (GP)</td><td>categorical</td><td>practice/site</td><td>Context predictor</td></tr>
+                  <tr><td>DistanceFromTUH_KM</td><td>numeric</td><td>km</td><td>Route predictor</td></tr>
+                  <tr><td>Who delivered samples</td><td>categorical</td><td>courier / PTS / staff / other</td><td>Route predictor</td></tr>
+                  <tr><td>Delivery Window</td><td>categorical</td><td>AM / Midday / PM</td><td>Temporal context</td></tr>
+                  <tr><td>DatetimeSampleTaken</td><td>datetime</td><td>Europe/Dublin</td><td>Audit / feature</td></tr>
+                  <tr><td>DatetimeReceivedLab</td><td>datetime</td><td>Europe/Dublin</td><td>Audit / feature</td></tr>
+                  <tr><td>DatetimeResultReported</td><td>datetime</td><td>Europe/Dublin</td><td>Audit / feature</td></tr>
+                  <tr><td>Est time collected from practice</td><td>numeric</td><td>minutes (est.)</td><td>Sensitivity covariate</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="mini">Data were collected from an Public Irish Univeristy Hospital. Data were collected in a way that they are GDPR and ALTAI complaint.</p>
           </div>
-          <p class="small">SHAP: MinutesFromLabToResults had highest impact.</p>
-        </article>
-
-        <article class="card" aria-labelledby="exp3">
-          <h3 id="exp3">Exp 3 — OLS & RF (w/ categorical)</h3>
-          <p class="meta">Added features: GP, delivery method/window</p>
-          <div class="kpis">
-            <div class="kpi">OLS R²: <strong>0.299</strong></div>
-            <div class="kpi">RF R²: <strong>0.516</strong></div>
-            <div class="kpi">RF (reduced) R²: <strong>0.654</strong></div>
-          </div>
-          <p class="small">Top predictors: Potassium, MinutesFromLabToResults.</p>
-        </article>
-
-        <article class="card" aria-labelledby="exp4">
-          <h3 id="exp4">Exp 4 — RF (ScoreOfHaemolysis 0–5)</h3>
-          <p class="meta">Ordinal target</p>
-          <div class="kpis">
-            <div class="kpi">R²: <strong>-0.086</strong></div>
-            <div class="kpi">MSE: <strong>0.485</strong></div>
-            <div class="kpi">MAE: <strong>0.393</strong></div>
-          </div>
-          <p class="small">Impact: MinutesFromLabToResults highest.</p>
-        </article>
-
-        <article class="card" aria-labelledby="exp5">
-          <h3 id="exp5">Exp 5 — OLS vs RF (continuous)</h3>
-          <p class="meta">Potassium dominant feature in both models</p>
-          <div class="kpis">
-            <div class="kpi">OLS R²: <strong>0.034</strong></div>
-            <div class="kpi">RF train R²: <strong>0.849</strong></div>
-          </div>
-          <p class="small">RF showed overfitting; SHAP confirmed Potassium dominance.</p>
-        </article>
-
-        <article class="card" aria-labelledby="exp6">
-          <h3 id="exp6">Exp 6 — XGBoost (3-class, weighted)</h3>
-          <p class="meta">Classes: Mild, Moderate, Severe</p>
-          <div class="kpis">
-            <div class="kpi">Accuracy: <strong>0.342</strong></div>
-            <div class="kpi">Weighted F1: <strong>0.351</strong></div>
-          </div>
-          <p class="small">Most misclassified between Moderate and Severe.</p>
-        </article>
-
-        <article class="card" aria-labelledby="exp7">
-          <h3 id="exp7">Exp 7 — XGBoost + SMOTE (3-class)</h3>
-          <p class="meta">Balanced using SMOTE</p>
-          <div class="kpis">
-            <div class="kpi">Accuracy: <strong>0.509</strong></div>
-            <div class="kpi">Weighted F1: <strong>0.426</strong></div>
-          </div>
-          <p class="small">Importance: Potassium, then delivery time & distance.</p>
-        </article>
+        </div>
       </div>
 
-      <div class="spacer"></div>
-      <div class="card">
-        <div class="topbar">
-          <strong>Downloads</strong>
-          <span class="pill">📄 Summary CSV</span>
-          <span class="pill">📊 Figures (ZIP)</span>
+      <!-- METHODS -->
+      <div class="panel reveal" id="panel-2" role="tabpanel" aria-labelledby="tab-2">
+        <div class="strip">
+          <div class="card"><h3>Pipeline</h3><div class="mini">Clean → Explore → Engineer → Train → Explain.</div></div>
+          <div class="card"><h3>Models</h3><div class="mini">OLS • Random Forest • XGBoost • MLP</div></div>
+          <div class="card"><h3>Explainability</h3><div class="mini">SHAP • Permutation • LIME</div></div>
         </div>
-        <p class="small">Add links to generated artifacts here to help examiners verify results.</p>
+      </div>
+
+      <!-- RESULTS -->
+      <div class="panel reveal" id="panel-3" role="tabpanel" aria-labelledby="tab-3">
+        <!-- Product-style headline for the model -->
+        <div class="card" style="margin-bottom:12px">
+          <h3 style="margin:0 0 8px">Final Model — Binary MLP Classifier (undersampling)</h3>
+          <div class="mini">Predicts haemolysis risk <strong>(Low vs High)</strong> to triage redraws and manage logistics.</div>
+          <div class="metrics" style="margin-top:10px">
+            <div class="kpi">Accuracy: <strong>0.602</strong></div>
+            <div class="kpi">Precision (High): <strong>0.609</strong></div>
+            <div class="kpi">Precision (Low): <strong>0.596</strong></div>
+          </div>
+          <details><summary>How this helps operations</summary><div class="tiny">Flags higher-risk samples early so clinics can adjust handling, packaging, or courier windows to reduce redraws and delays.</div></details>
+        </div>
+
+        <!-- All experiments grid -->
+        <div class="results-grid" aria-label="Experiments">
+          <article class="exp">
+            <h4>Exp 1 — Random Forest Regressor</h4>
+            <div class="tiny">Haemolysis (continuous)</div>
+            <div class="chips"><span class="chip">R² -0.071</span><span class="chip">MSE 34.309</span><span class="chip">MAE 4.452</span></div>
+          </article>
+
+          <article class="exp">
+            <h4>Exp 3 — OLS & RF Regressor (+ categorical)</h4>
+            <div class="tiny">Haemolysis (continuous)</div>
+            <div class="chips"><span class="chip">OLS R² 0.299</span><span class="chip">RF R² 0.516 → 0.654 (reduced)</span><span class="chip">MAE 7.45</span></div>
+          </article>
+
+          <article class="exp">
+            <h4>Exp 4 — Random Forest Regressor</h4>
+            <div class="tiny">ScoreOfHaemolysis (0–5 bins)</div>
+            <div class="chips"><span class="chip">R² -0.086</span><span class="chip">MSE 0.485</span><span class="chip">MAE 0.393</span></div>
+          </article>
+
+          <article class="exp">
+            <h4>Exp 5 — OLS & Random Forest Regressor</h4>
+            <div class="tiny">Haemolysis (continuous)</div>
+            <div class="chips"><span class="chip">OLS R² 0.034</span><span class="chip">RF train R² 0.849 (overfit)</span></div>
+          </article>
+
+          <article class="exp">
+            <h4>Exp 6 — XGBoost Classifier (weighted)</h4>
+            <div class="tiny">Mild • Moderate • Severe</div>
+            <div class="chips"><span class="chip">Accuracy 0.342</span><span class="chip">wF1 0.351</span></div>
+          </article>
+
+          <article class="exp">
+            <h4>Exp 7 — XGBoost Classifier + SMOTE</h4>
+            <div class="tiny">Mild • Moderate • Severe</div>
+            <div class="chips"><span class="chip">Accuracy 0.509</span><span class="chip">wF1 0.426</span></div>
+          </article>
+
+          <article class="exp">
+            <h4>Exp 8 — MLP + SMOTE</h4>
+            <div class="tiny">Mild • Moderate • Severe</div>
+            <div class="chips"><span class="chip">Accuracy 0.368</span><span class="chip">Precision: Mild 0.277 • Mod 0.577 • Sev 0.297</span></div>
+          </article>
+
+          <article class="exp">
+            <h4>Exp 9 — Binary MLP Classifier</h4>
+            <div class="tiny">Low vs High risk</div>
+            <div class="chips"><span class="chip">Accuracy 0.691</span><span class="chip">Precision (High) 0.130</span><span class="chip">Precision (Low) 0.798</span></div>
+          </article>
+
+          <article class="exp">
+            <h4>Exp 10 — Binary MLP Classifier (Final)</h4>
+            <div class="tiny">Low vs High risk, undersampling</div>
+            <div class="chips"><span class="chip">Accuracy 0.602</span><span class="chip">Precision (High) 0.609</span><span class="chip">Precision (Low) 0.596</span></div>
+          </article>
+        </div>
+
+        <!-- Compare table -->
+        <button id="compare-toggle" class="btn" style="margin-top:18px; margin-bottom:12px ; color: #e7f6ff;"><i style="font-size:24px" class="fa">&#xf0ce;</i>
+ Summary Table</button>
+        <div id="compare-table" style="display:none; overflow-x:auto; margin-bottom:20px">
+          <table class="table" style="min-width:780px">
+            <thead>
+              <tr>
+                <th data-col="exp">Experiment</th>
+                <th data-col="r2">R²</th>
+                <th data-col="mse">MSE</th>
+                <th data-col="mae">MAE</th>
+                <th data-col="acc">Accuracy</th>
+                <th data-col="wf1">Weighted F1</th>
+                <th data-col="phigh">Prec (High)</th>
+                <th data-col="plow">Prec (Low)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Exp 1</td><td>-0.071</td><td>34.309</td><td>4.452</td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>Exp 3</td><td>0.516→0.654</td><td></td><td>7.45</td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>Exp 4</td><td>-0.086</td><td>0.485</td><td>0.393</td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>Exp 5</td><td>0.034 / 0.849*</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>Exp 6</td><td></td><td></td><td></td><td>0.342</td><td>0.351</td><td></td><td></td></tr>
+              <tr><td>Exp 7</td><td></td><td></td><td></td><td>0.509</td><td>0.426</td><td></td><td></td></tr>
+              <tr><td>Exp 8</td><td></td><td></td><td></td><td>0.368</td><td></td><td>0.609</td><td>0.596</td></tr>
+              <tr><td>Exp 9</td><td></td><td></td><td></td><td>0.691</td><td></td><td>0.130</td><td>0.798</td></tr>
+              <tr><td>Exp 10 (Final)</td><td></td><td></td><td></td><td>0.602</td><td></td><td>0.609</td><td>0.596</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- SHAP section -->
+        <div class="card reveal" style="margin:14px 0">
+          <h3 style="margin:0 0 8px">SHAP Insights</h3>
+          <div class="mini">Highlights Which <strong>Features</strong> Contribute to Haemolysis Elevation. <strong>Simple Design</strong> For <strong>Easy Interpretation</strong> By Clinicians & Lab Staff.</div><br>
+          <div class="gallery">
+            <a href="/Users/eugenelim/Documents/assets/SHAP_PER_CLASS.png" class="thumb" data-title="SHAP Feature Importance (Bar)"><img src="/Users/eugenelim/Documents/assets/SHAP_PER_CLASS.png" alt="SHAP bar importance"></a>
+            <a href="/Users/eugenelim/Documents/assets/SHAP_PROTO.png" class="thumb" data-title="SHAP Feature Importance (Bar)"><img src="/Users/eugenelim/Documents/assets/SHAP_PROTO.png" alt="SHAP bar importance"></a>
+            <a href="/Users/eugenelim/Documents/assets/SHAP_FINAL_MODEL.png" class="thumb" data-title="SHAP Beeswarm — Final Model"><img src="/Users/eugenelim/Documents/assets/SHAP_FINAL_MODEL.png" alt="SHAP beeswarm final"></a>
+
+
+        </div>
+        </div>
+
+        <!-- Permutation Importance section -->
+        <div class="card reveal" style="margin:14px 0">
+          <h3 style="margin:0 0 8px">Permutation Importance</h3>
+          <div class="mini">Perturbation to Confirm SHAP: Highlights What Affects Haemolysis Most When <strong>Shuffled</strong>.</div><br>
+          <div class="gallery">
+            <a href="/Users/eugenelim/Documents/assets/PERM_IMP.png" class="thumb" data-title="Permutation Importance — Table"><img src="/Users/eugenelim/Documents/assets/PERM_IMP.png" alt="Permutation importance bar"></a>
+          </div>
+        </div>
+         <!-- Bias Checks section -->
+        <div class="card reveal" style="margin:14px 0">
+          <h3 style="margin:0 0 8px">Per Class Bias Checks</h3>
+          <div class="mini">Making Sure The Model isnt Bias With <strong>Class-Oriented Checks</strong>. Accuracy Can Be High Even With Bias Present, <strong>Sensitivity & Specificity</strong>  Per Class Must Be Checked As Well.</div><br>
+          <div class="gallery">
+            <a href="/Users/eugenelim/Documents/assets/BIAS_CLASS.png" class="thumb" data-title="Classification Report - (2 Classes)"><img src="/Users/eugenelim/Documents/assets/BIAS_CLASS.png" alt="Permutation importance bar"></a>
+            <a href="/Users/eugenelim/Documents/assets/BIAS_CLASS_2.png" class="thumb" data-title="Classification Report - (3 Classes)"><img src="/Users/eugenelim/Documents/assets/BIAS_CLASS_2.png" alt="Permutation importance bar"></a>
+        </div>
+        </div>
+
+
+
+      </div>
+
+      <!-- ETHICS -->
+      <div class="panel reveal" id="panel-4" role="tabpanel" aria-labelledby="tab-4">
+        <div class="strip">
+          <div class="card"><h3>Frameworks</h3><div class="mini">GDPR • HIPPA • EU AI Act</div></div>
+          <div class="card"><h3>Focus</h3><div class="mini">Transparency • Bias Checks • Privacy-by-design</div></div>
+          <div class="card"><h3>Practice</h3><div class="mini">Purpose limitation • Access control • Audit trail</div></div>
+        </div>
+      </div>
+
+      <!-- SIGNIFICANCE -->
+      <div class="panel reveal" id="panel-5" role="tabpanel" aria-labelledby="tab-5">
+        <div class="card" style="margin-bottom:12px">
+          <h3 style="margin:0 0 8px"></h3>
+        <details><summary>Pre-analytical errors</summary><div class="tiny">Flags haemolysis before analysis so labs can reprioritise, re-pack, or re-draw early—cutting delays, reruns, and patient callbacks.</div></details>
+        </div>
+         <div class="card" style="margin-bottom:12px">
+          <h3 style="margin:0 0 8px"></h3>
+          <details><summary>Actionable</summary><div class="tiny">SHAP & permutation importance consistently surface potassium, delivery window, and transport mode—clear levers ops teams can actually change (scheduling, packaging, courier SOPs).</div></details>
+        </div> <div class="card" style="margin-bottom:12px">
+          <h3 style="margin:0 0 8px"></h3>
+          <details><summary>Clinician-Trustable</summary><div class="tiny">Every prediction comes with an explanation (feature contributions), so staff can see why a sample was flagged and contest it—key for human-centred AI.</div></details>
+        </div> <div class="card" style="margin-bottom:12px">
+          <h3 style="margin:0 0 8px"></h3>
+          <details><summary>Runs on Routine Data</summary><div class="tiny">LIS timestamps, GP/site, delivery metadata, and potassium—no exotic sensors required. Easier to integrate, easier to maintain.</div></details>
+        </div> <div class="card" style="margin-bottom:12px">
+          <h3 style="margin:0 0 8px"></h3>
+          <details><summary>GDPR Friendly</summary><div class="tiny">Built around pseudonymised, minimised data and auditable logic; compatible with Article 9(2)(j)/89(1) research safeguards</div></details>
+        </div> <div class="card" style="margin-bottom:12px">
+          <h3 style="margin:0 0 8px"></h3>
+          <details><summary>Configurable</summary><div class="tiny">Use thresholding and uncertainty gating to tune sensitivity vs specificity per lab, time of day, or volume. Start conservative; widen later.</div></details>
+        </div>
       </div>
     </section>
 
-    <section id="ethics">
-      <h2 class="section-title">Ethics & Governance</h2>
-      <div class="grid cols-2">
-        <div class="card">
-          <h3>Guiding Frameworks</h3>
-          <ul>
-            <li>ALTAI — Assessment List for Trustworthy AI</li>
-            <li>Microsoft AI Fairness Checklist</li>
-          </ul>
-          <p class="small">Focus: transparency, bias, accountability, and privacy-by-design.</p>
+    <section id="contact" class="container" style="margin-top:34px">
+      <div class="strip">
+        <div class="card reveal">
+          <h3>Get the PDF</h3>
+          <div class="mini">Dowload a copy of the research documentation</div>
+          <div style="margin-top:10px"><a class="btn primary" href="#" id="download-pdf"><i style="font-size:24px" class="fa">&#xf019;</i>
+ Download</a></div>
         </div>
-        <div class="card">
-          <h3>Data Protection</h3>
-          <ul>
-            <li>De-identification and minimization</li>
-            <li>Purpose limitation and access control</li>
-            <li>Secure research storage and audit trail</li>
-          </ul>
+        <div class="card reveal">
+          <h3>Source Code</h3>
+          <div class="mini">Reproducible notebooks & data prep.</div>
+          <div style="margin-top:10px"><a class="btn" href="#" id="github-link"><i style="font-size:24px" class="fa">&#xf09b;</i>
+ Open Repo</a></div>
         </div>
-      </div>
-    </section>
-
-    <section id="team">
-      <h2 class="section-title">Team & Acknowledgements</h2>
-      <div class="grid cols-2">
-        <div class="card">
-          <h3>Researcher</h3>
-          <p><strong>Your Name</strong><br/>MSc Human-Centred AI, Technological University Dublin</p>
+        <div class="card reveal">
+          <h3>Connect</h3>
+          <div class="mini">Feedback & collaboration welcome.</div>
+          <div style="margin-top:10px"><a class="btn" href="https://www.linkedin.com/in/eugene-lim-883533227?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BvwARhaCqRamLG8xhPM%2FqNQ%3D%3D"><i style="font-size:24px" class="fa">&#xf08c;</i>
+ LinkedIn</a></div>
         </div>
-        <div class="card">
-          <h3>Supervision</h3>
-          <p><strong>Dr. Fernando Perez Tellez</strong> (Supervisor)<br/><strong>Laboratory Staff</strong>, Tallaght University Hospital (Co-supervisors)</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="contact">
-      <h2 class="section-title">Contact</h2>
-      <div class="card">
-        <p>Questions or collaboration ideas? Reach out.</p>
-        <p>
-          <a class="btn" href="mailto:you@example.com">✉️ Email</a>
-          <a class="btn" href="#" id="linkedin-link">🔗 LinkedIn</a>
-        </p>
       </div>
     </section>
   </main>
 
-  <div class="floating" aria-hidden>
-    <button class="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">⬆️</button>
-  </div>
-
   <footer>
     <div class="container">
-      <div>© <span id="year"></span> Your Name. All rights reserved.</div>
-      <div class="small">Built with HTML/CSS/JS. Host on GitHub Pages or Netlify. Replace placeholders with your actual links and content.</div>
+      <div>© <span id="year"></span> Eugene Lim • Built for GitHub Pages</div>
     </div>
   </footer>
 
   <script>
-    // Insert current year
+    // Link placeholders — replace with your actual URLs
+    document.getElementById('download-pdf').href = '/Users/eugenelim/Documents/assets/Thesis.pdf'; // e.g., /files/thesis.pdf
+    document.getElementById('github-link').href = 'https://github.com/eugenelim831/A-Human-Centred-Machine-Learning-Approach-to-Operational-Risk-Factors'; // e.g., https://github.com/eugenelim831/eugenelim831.github.io
     document.getElementById('year').textContent = new Date().getFullYear();
-    // TODO: Replace these with real URLs
-    document.getElementById('download-pdf').href = '#'; // e.g., /files/thesis.pdf
-    document.getElementById('github-link').href = '#'; // e.g., https://github.com/yourname/thesis
-    document.getElementById('linkedin-link').href = '#';
+
+    // Keyword cycler
+    const words = ["Haemolysis","Potassium (K⁺)","Logistics"]; let wi=0;
+    setInterval(()=>{ wi=(wi+1)%words.length; document.getElementById('cycler').textContent = words[wi]; },2200);
+
+    // RBC canvas (floating red blood cells)
+    const c = document.getElementById('fx'); const ctx = c.getContext('2d'); let W,H,RBC=[];
+    function resize(){ W=c.width=window.innerWidth; H=c.height=document.querySelector('.hero').offsetHeight;
+      RBC = Array.from({length: Math.min(50, Math.floor(W/30))}, () => ({
+        x: Math.random()*W, y: Math.random()*H, r: 8+Math.random()*10, vx: (-0.3+Math.random()*0.6), vy: (-0.2+Math.random()*0.4)
+      }));
+    }
+    function drawCell(p){
+      const g = ctx.createRadialGradient(p.x, p.y, p.r*0.2, p.x, p.y, p.r);
+      g.addColorStop(0, "rgba(255,255,255,.15)");
+      g.addColorStop(0.4, "rgba(225,29,72,.9)");
+      g.addColorStop(1, "rgba(153,27,27,.85)");
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,.08)"; ctx.lineWidth = 1; ctx.stroke();
+    }
+    function tick(){ ctx.clearRect(0,0,W,H); for(const p of RBC){ p.x+=p.vx; p.y+=p.vy; if(p.x<-20) p.x=W+20; if(p.x>W+20) p.x=-20; if(p.y<-20) p.y=H+20; if(p.y>H+20) p.y=-20; drawCell(p);} requestAnimationFrame(tick) }
+    window.addEventListener('resize', resize); resize(); tick();
+
+    // Reveal on scroll
+    const io = new IntersectionObserver((e)=>{ e.forEach(x=>{ if(x.isIntersecting) x.target.classList.add('in'); }) }, {threshold:.12});
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+    // Animated counters
+    function countUp(el){ const target=+el.dataset.target; let cur=0; const step = Math.max(1, Math.floor(target/60)); const t=setInterval(()=>{ cur+=step; if(cur>=target){cur=target; clearInterval(t)} el.textContent=cur },16) }
+    document.querySelectorAll('.num').forEach(countUp);
+
+    // Tabs
+    const tabs=[...document.querySelectorAll('.tabbar [role=tab]')];
+    tabs.forEach(t=>t.addEventListener('click',()=>{
+      tabs.forEach(b=>{
+        b.setAttribute('aria-selected','false');
+        document.getElementById(b.getAttribute('aria-controls')).classList.remove('active')
+      });
+      t.setAttribute('aria-selected','true');
+      document.getElementById(t.getAttribute('aria-controls')).classList.add('active')
+    }));
+
+    // Compare table toggle & sorting
+    const toggle=document.getElementById('compare-toggle');
+    const table=document.getElementById('compare-table');
+    toggle.addEventListener('click',()=>{ table.style.display = table.style.display==='none' ? 'block' : 'none'; });
+
+    document.querySelectorAll('#compare-table th').forEach(th=>{
+      th.style.cursor='pointer';
+      th.addEventListener('click',()=>{
+        const tbody = th.closest('table').querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const idx = Array.from(th.parentNode.children).indexOf(th);
+        const asc = !th.classList.contains('asc');
+        rows.sort((a,b)=>{
+          const A=a.children[idx].textContent.trim();
+          const B=b.children[idx].textContent.trim();
+          const nA=parseFloat(A); const nB=parseFloat(B);
+          if(!isNaN(nA) && !isNaN(nB)) return asc ? nA-nB : nB-nA;
+          return asc ? A.localeCompare(B) : B.localeCompare(A);
+        });
+        tbody.innerHTML=''; rows.forEach(r=>tbody.appendChild(r));
+        th.parentNode.querySelectorAll('th').forEach(x=>x.classList.remove('asc','desc'));
+        th.classList.add(asc?'asc':'desc');
+      });
+    });
+
+    // Lightbox for galleries
+    const lb=document.createElement('div'); lb.id='lightbox'; lb.innerHTML='<figure><img alt=""><figcaption></figcaption></figure>'; document.body.appendChild(lb);
+    function openLB(src,title){ const img=lb.querySelector('img'); const cap=lb.querySelector('figcaption'); img.src=src; cap.textContent=title||''; lb.classList.add('show'); }
+    lb.addEventListener('click',()=>lb.classList.remove('show'));
+    document.querySelectorAll('.gallery .thumb').forEach(a=>a.addEventListener('click',e=>{e.preventDefault(); openLB(a.getAttribute('href'), a.dataset.title)}));
+    if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+
+// Ensure top on normal loads
+window.addEventListener('load', function () {
+  // zero-delay to run after layout
+  setTimeout(function () {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, 0);
+});
+
+// Ensure top when coming back via back/forward cache (bfcache)
+window.addEventListener('pageshow', function () {
+  window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+});
+
+// Optional: ignore an initial #hash so it doesn't auto-jump on first visit
+// (Remove this block if you *want* to land on hashes when directly linked)
+(function () {
+  if (!sessionStorage.getItem('firstVisitDone')) {
+    sessionStorage.setItem('firstVisitDone', '1');
+    if (location.hash) {
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+  }
+})();
   </script>
 </body>
 </html>
